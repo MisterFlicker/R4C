@@ -1,0 +1,10 @@
+<form action="{% url 'robots' %}" method="GET">
+    {% csrf_token %}
+    <input type="submit" name="go" value="Внести данные о роботах или запросить отчет о роботах за последнюю неделю">
+</form>
+
+
+<form action="{% url 'orders' %}" method="GET">
+    {% csrf_token %}
+    <input type="submit" name="go2" value="Оформить заказ робота">
+</form>

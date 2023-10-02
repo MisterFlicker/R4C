@@ -1,0 +1,33 @@
+<form action="{% url 'orders' %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" name="delete" value="Удалить все данные о заказах">
+</form>
+
+<form action="{% url 'orders' %}" method="POST">
+    {% csrf_token %}
+    {{ form1 }}
+    {{ form2 }}
+    <input type="submit" name="create_order" value="Внести данные">
+</form>
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if count_of_ready != 0 %}
+    {% for order in ready_orders %}
+        Заказ клиента {{ order.0 }} робота {{ order.1 }} готов.
+        <form action="{% url 'orders' %}" method="POST">
+            {% csrf_token %}
+            <p>Email: <input name="email" type="text" value="{{ order.0 }}"></p>
+            <p>Serial: <input name="serial" type="text" value="{{ order.1 }}"></p>
+            <input type="submit" name="send_email" value="Отправить email оповещение">
+        </form>
+    {% endfor %}
+{% endif %}
