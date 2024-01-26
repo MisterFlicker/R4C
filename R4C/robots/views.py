@@ -1,13 +1,37 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 import json
-from .forms import RobotForm, SecondRobotForm
-import cerberus
+from .forms import RobotForm, UploadForm
 from django.contrib import messages
-from datetime import datetime
-from .adding_info import add_info
+from .adding_info import add_info, validate_file
 from .models import Robot
 from .making_report import make_report, dates
+from . import generating_info
+import glob
+import os
+
+
+@require_http_methods(['POST'])
+def upload_file(request):
+    form = RobotForm()
+    file_form = UploadForm(request.POST, request.FILES)
+    if file_form.is_valid():
+        file_form.save()
+        list_of_files = glob.glob('./media/documents/*')
+        latest_file = max(list_of_files, key=os.path.getctime)
+        print(latest_file)
+        if latest_file.split('.')[-1] in ('txt', 'json'):
+            with open(latest_file) as f:
+                data = json.load(f)
+                if validate_file(data):
+                    for key, value in data.items():
+                        form[f'{key}'].initial = value
+                else:
+                    messages.error(request, "Incorrect format of info in file")
+        else:
+            messages.error(request, "Incorrect extension of file")
+
+    return render(request, 'robots.html', {'form': form, 'file_form': file_form})
 
 
 @require_http_methods(['POST'])
@@ -21,10 +45,11 @@ def report(request):
 @require_http_methods(['GET', 'POST'])
 def robots(request):
     form = RobotForm()
-
+    file_form = UploadForm()
     if request.method == 'POST':
         if "generate_info" in request.POST:
-            form = SecondRobotForm()
+            for key, value in generating_info.generate_info().items():
+                form[f'{key}'].initial = value
 
         if "delete" in request.POST:
             Robot.objects.all().delete()
@@ -33,29 +58,14 @@ def robots(request):
             form = RobotForm(request.POST)
 
             if form.is_valid():
-                r_info = form.cleaned_data['Robot_info']
-                try:
-                    r_info = json.loads(r_info)
-                except:
-                    messages.error(request, "Wrong format of robot info")
-                r_model = r_info['model']
-                r_version = r_info['version']
-                r_created = datetime.strptime(r_info['created'], '%Y-%m-%d %H:%M:%S')
-                info = {'model': r_model, 'version': r_version, 'created': r_created}
-
-                # схема для валидации входных данных
-                schema = {'model': {'type': 'string'},
-                          'version': {'type': 'string'},
-                          'created': {'type': 'datetime'}}
-                v = cerberus.Validator(schema)
-
-                if v.validate(info):
-                    if add_info(info):
-                        messages.error(request, "Info added to system")
-
-                    else:
-                        messages.error(request, "Info about this robot already exists in system")
+                r_model = form.cleaned_data['model'].upper()
+                r_version = form.cleaned_data['version'].upper()
+                r_created = form.cleaned_data['created']
+                if add_info(r_model, r_version, r_created):
+                    messages.error(request, "Info added to system")
+                else:
+                    messages.error(request, "Info about this robot already exists in system")
             else:
                 messages.error(request, "Wrong format of robot info")
 
-    return render(request, 'robots.html', {'form': form})
+    return render(request, 'robots.html', {'form': form, 'file_form': file_form})

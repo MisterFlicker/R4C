@@ -1,9 +1,19 @@
 from django import forms
-from . import generating_info
+from django.core.validators import RegexValidator
+from .models import Document
+
 
 class RobotForm(forms.Form):
-    Robot_info = forms.CharField(widget=forms.Textarea, max_length=999)
+    model = forms.CharField(initial='', max_length=2, validators=[RegexValidator(regex='^[A-Z0-9]{2}$')])
+    version = forms.CharField(initial='', max_length=2, validators=[RegexValidator(regex='^[A-Z0-9]{2}$')])
+    created = forms.CharField(
+        initial='',
+        max_length=19,
+        validators=[RegexValidator(regex='^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$')]
+    )
 
 
-class SecondRobotForm(forms.Form):
-    Robot_info = forms.CharField(initial=generating_info.generate_info(), widget=forms.Textarea, max_length=999)
+class UploadForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ('document', )

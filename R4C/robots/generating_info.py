@@ -22,8 +22,10 @@ def generate_info():
     rand_version = ''.join(random.choice(letters) for i in range(2))
     rand_date = generate_date(date1, date2)
 
-    rand_model = '{"model":"' + rand_model + '",\n'
-    rand_version = '"version":"' + rand_version + '",\n'
-    rand_created = '"created":"' + rand_date.strftime("%Y-%m-%d %H:%M:%S") + '"'
-    rand_info = rand_model + rand_version + rand_created + '}'
+    rand_info = {
+        'model': rand_model,
+        'version': rand_version,
+        'created': rand_date
+    }
+
     return rand_info

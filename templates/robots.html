@@ -11,16 +11,11 @@
     <input type="submit" name="generate_info" value="Сгенерировать информацию о случайном роботе">
 </form>
 
-
-{% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
+<form action="{% url 'upload_file' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ file_form }}
+    <input type="submit" name="upload_file" value="Загрузить файл">
+</form>
 
 <form action="{% url 'robots' %}" method="POST">
     {% csrf_token %}
@@ -32,3 +27,13 @@
     {% csrf_token %}
     <input type="submit" name="make_report" value="Получить отчет о созданных роботах за неделю">
 </form>
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

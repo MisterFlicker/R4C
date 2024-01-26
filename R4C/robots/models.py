@@ -9,3 +9,8 @@ class Robot(models.Model):
 
     class Meta:
         ordering = ['model']
+
+
+class Document(models.Model):
+    document = models.FileField(upload_to='documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)

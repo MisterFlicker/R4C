@@ -1,6 +1,5 @@
 from django.db import models
 from R4C.customers.models import Customer
-from R4C.robots.models import Robot
 
 
 class Order(models.Model):
