@@ -19,7 +19,7 @@ from R4C import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('robots/', include ('R4C.robots.urls')),
+    path('robots/', include('R4C.robots.urls')),
     path('', views.index, name='index'),
-    path('orders/', include ('R4C.orders.urls')),
+    path('orders/', include('R4C.orders.urls')),
 ]

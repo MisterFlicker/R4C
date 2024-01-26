@@ -3,31 +3,34 @@ from django.views.decorators.http import require_http_methods
 import json
 from .forms import RobotForm, UploadForm
 from django.contrib import messages
-from .adding_info import add_info, validate_file
 from .models import Robot
-from .making_report import make_report, dates
-from . import generating_info
 import glob
 import os
+from .utility import add_info, validate_file, make_report, dates, generate_info
 
 
 @require_http_methods(['POST'])
 def upload_file(request):
     form = RobotForm()
     file_form = UploadForm(request.POST, request.FILES)
+
     if file_form.is_valid():
         file_form.save()
         list_of_files = glob.glob('./media/documents/*')
         latest_file = max(list_of_files, key=os.path.getctime)
         print(latest_file)
+
         if latest_file.split('.')[-1] in ('txt', 'json'):
             with open(latest_file) as f:
                 data = json.load(f)
+
                 if validate_file(data):
                     for key, value in data.items():
                         form[f'{key}'].initial = value
+
                 else:
                     messages.error(request, "Incorrect format of info in file")
+
         else:
             messages.error(request, "Incorrect extension of file")
 
@@ -46,9 +49,11 @@ def report(request):
 def robots(request):
     form = RobotForm()
     file_form = UploadForm()
+
     if request.method == 'POST':
+
         if "generate_info" in request.POST:
-            for key, value in generating_info.generate_info().items():
+            for key, value in generate_info().items():
                 form[f'{key}'].initial = value
 
         if "delete" in request.POST:

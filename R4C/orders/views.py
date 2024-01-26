@@ -22,7 +22,7 @@ def orders(request):
             cur_serial = request.POST.get('serial')
             send_mail(
                 "Order is ready!",
-                f"Добрый день!\nНедавно вы интересовались нашим роботом модели {cur_serial[0:2]}, версии {cur_serial[2:-1]}.\n"
+                f"Добрый день!\nВы интересовались нашим роботом модели {cur_serial[0:2]}, версии {cur_serial[2:-1]}.\n"
                 f"Этот робот теперь в наличии. Если вам подходит этот вариант - пожалуйста, свяжитесь с нами",
                 "webmaster@localhost",
                 [f"{cur_email}"],
